@@ -34,3 +34,10 @@ echo "    mongo $DATABASE -u $USER -p $PASS --host <host> --port <port>"
 echo ""
 echo "Please remember to change the above password as soon as possible!"
 echo "========================================================================"
+
+OPLOGGER_PASS=${MONGODB_OPLOGGER_PASS:-$(pwgen -s 12 1)}
+_word=$( [ ${MONGODB_OPLOGGER_PASS} ] && echo "preset" || echo "random" )
+echo "=> Creating an 'oplogger' user with a ${_word} password '$OPLOGGER_PASS' in MongoDB"
+mongo admin -u $USER -p $PASS << EOF
+db.createUser({user: "oplogger", pwd: "$OPLOGGER_PASS", roles: [{role: "read", db: "local"}]})
+EOF
